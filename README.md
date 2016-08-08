@@ -12,5 +12,7 @@ you're receiving receiving private messages.
 
 ## Building from Source
 
+After cloning this repository including submodules, issue the following commands in the root directory:
+
     qmake
-    make
+    (n)make
