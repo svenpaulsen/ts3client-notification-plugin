@@ -1,18 +1,13 @@
+/**
+ * TeamSpeak 3 Client Notification Plugin
+ *
+ * Copyright (c) Sven Paulsen. All rights reserved.
+ */
+
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <QtCore>
-
-#include "teamspeak/public_errors.h"
-#include "teamspeak/public_errors_rare.h"
-#include "teamspeak/public_definitions.h"
-#include "teamspeak/public_rare_definitions.h"
-#include "teamspeak/clientlib_publicdefinitions.h"
-#include "ts3_functions.h"
-#include "plugin.h"
-
-extern struct TS3Functions pluginSDK;
-extern char*               pluginID;
+#include "shared.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +26,7 @@ Q_DECL_EXPORT void        ts3plugin_setFunctionPointers(const struct TS3Function
 // optional functions
 Q_DECL_EXPORT const char* ts3plugin_commandKeyword();
 Q_DECL_EXPORT int         ts3plugin_processCommand(uint64 schID, const char* command);
-Q_DECL_EXPORT int         ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID toID, anyID fromID, const char* fromName, const char* fromUID, const char* message, int ignored);
+Q_DECL_EXPORT int         ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored);
 Q_DECL_EXPORT void        ts3plugin_registerPluginID(const char* id);
 
 #ifdef __cplusplus

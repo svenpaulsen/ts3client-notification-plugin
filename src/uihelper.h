@@ -1,9 +1,13 @@
+/**
+ * TeamSpeak 3 Client Notification Plugin
+ *
+ * Copyright (c) Sven Paulsen. All rights reserved.
+ */
+
 #ifndef UIHELPER_H
 #define UIHELPER_H
 
-#include <QApplication>
-#include <QMainWindow>
-#include <QSystemTrayIcon>
+#include "shared.h"
 
 class UIHelper
 {

@@ -1,8 +1,14 @@
-#include "plugin.h"
-#include "uihelper.h"
+/**
+ * TeamSpeak 3 Client Notification Plugin
+ *
+ * Copyright (c) Sven Paulsen. All rights reserved.
+ */
 
-struct TS3Functions pluginSDK;
-char*               pluginID = NULL;
+#include "plugin.h"
+#include "server.h"
+#include "client.h"
+#include "channel.h"
+#include "uihelper.h"
 
 /**
  * Returns the name of the plugin.
@@ -41,7 +47,7 @@ const char* ts3plugin_description()
  */
 int ts3plugin_apiVersion()
 {
-    return 20;
+    return PLUGIN_API;
 }
 
 /**
@@ -116,53 +122,46 @@ int ts3plugin_processCommand(uint64 schID, const char* command)
  *
  * @todo cleanup code
  */
-int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID toID, anyID fromID, const char* fromName, const char* fromUID, const char* msg, int ignored)
+int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored)
 {
     if(UIHelper::getMainWindow()->isActiveWindow())
     {
         return ignored;
     }
 
-    anyID  selfID   = 0;
-    uint64 chanID   = 0;
-    char*  selfNick = (char*) malloc(TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK*sizeof(char));
-    char*  fromNick = (char*) malloc(TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK*sizeof(char));
-    char*  location;
+    Server server(schID);
 
-    if(pluginSDK.getClientID(schID, &selfID) || pluginSDK.getClientDisplayName(schID, selfID, selfNick, TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK) || pluginSDK.getChannelOfClient(schID, selfID, &chanID))
+    Client self = server.getClientById(rcvID);
+    Client from = server.getClientById(srcID);
+
+    if(self.getName().isNull())
     {
-        free(selfNick);
-        free(fromNick);
         return ignored;
     }
 
-    if(pluginSDK.getClientDisplayName(schID, fromID, fromNick, TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK))
+    if(self.getID() && from.getID() != self.getID() && !ignored)
     {
-        strncpy(fromNick, fromName, strlen(fromName)+1);
-    }
-
-    if(selfID && fromID != selfID && !ignored)
-    {
-        if(mode == TextMessageTarget_CLIENT || QString(msg).contains(selfNick))
+        if(mode == TextMessageTarget_CLIENT || QString(msg).contains(self.getName()))
         {
-            if(mode == TextMessageTarget_CHANNEL && !pluginSDK.getChannelVariableAsString(schID, chanID, CHANNEL_NAME, &location))
+            switch(mode)
             {
-                UIHelper::getTrayIcon()->showMessage(QString("%1 (%2)").arg(fromNick, location), msg);
-                pluginSDK.freeMemory(location);
-            }
-            else if(mode == TextMessageTarget_SERVER && !pluginSDK.getServerVariableAsString(schID, VIRTUALSERVER_NAME, &location))
-            {
-                UIHelper::getTrayIcon()->showMessage(QString("%1 (%2)").arg(fromNick, location), msg);
-                pluginSDK.freeMemory(location);
-            }
-            else
-            {
-                UIHelper::getTrayIcon()->showMessage(QString("%1").arg(fromNick), msg);
+            case TextMessageTarget_SERVER:
+                UIHelper::getTrayIcon()->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1:\n%2").arg(from.getName(), msg), QSystemTrayIcon::NoIcon);
+                break;
+
+            case TextMessageTarget_CHANNEL:
+                UIHelper::getTrayIcon()->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1 in %2:\n%3").arg(from.getName(), server.getChannelByID().getName(), msg), QSystemTrayIcon::NoIcon);
+                break;
+
+            case TextMessageTarget_CLIENT:
+                UIHelper::getTrayIcon()->showMessage(from.getName(), msg, QSystemTrayIcon::NoIcon);
+                break;
+
+            default:
+                UIHelper::getTrayIcon()->showMessage(QString("%1 (%2)").arg(srcName, srcUID), msg, QSystemTrayIcon::NoIcon);
             }
         }
     }
 
-    free(selfNick);
-    free(fromNick);
     return ignored;
 }
