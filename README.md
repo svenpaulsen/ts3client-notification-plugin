@@ -5,6 +5,9 @@
 This simple plugin sends desktop notifications when your nickname is mentioned in the chat or when
 you're receiving receiving private messages.
 
+**Note**: Notifications are sent using the tray icon so make sure you have it enabled in the TeamSpeak 
+3 Client settings.
+
 ## Requirements
 
 - [TeamSpeak 3 Client Plugin SDK](https://github.com/svenpaulsen/ts3client-pluginsdk)
