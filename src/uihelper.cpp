@@ -42,3 +42,11 @@ QSystemTrayIcon* UIHelper::getTrayIcon()
 
     return ico;
 }
+
+/**
+ * Quick-and-dirty function to remove BBCode tags from a specified string.
+ */
+QString UIHelper::removeBBCode(QString str)
+{
+    return str.replace(QRegExp("\\[[^\\]]+\\]"), "");
+}

@@ -23,7 +23,7 @@ const char* ts3plugin_name()
  */
 const char* ts3plugin_version()
 {
-    return "1.0.0";
+    return "1.0.1";
 }
 
 /**
@@ -108,11 +108,21 @@ const char* ts3plugin_commandKeyword()
 /**
  * Sends a test notification when invoking a command using the plugin keyword.
  */
-int ts3plugin_processCommand(uint64 schID, const char* command)
+int ts3plugin_processCommand(uint64 schID, const char* cmd)
 {
-    pluginSDK.logMessage(QString("%1(): %2").arg(__FUNCTION__, command).toUtf8().data(), LogLevel_DEBUG, ts3plugin_name(), schID);
+    QSystemTrayIcon* ico = UIHelper::getTrayIcon();
+    QString          str = UIHelper::removeBBCode(cmd);
 
-    UIHelper::getTrayIcon()->showMessage(qApp->applicationName(), command);
+    pluginSDK.logMessage(QString("%1(): %2").arg(__FUNCTION__, str).toUtf8().data(), LogLevel_DEBUG, ts3plugin_name(), schID);
+
+    if(!ico || !ico->isVisible())
+    {
+        pluginSDK.logMessage(QString("Failed to send notification; no QSystemTrayIcon available").toUtf8().data(), LogLevel_WARNING, ts3plugin_name(), schID);
+
+        return 1;
+    }
+
+    ico->showMessage(qApp->applicationName(), str, QSystemTrayIcon::NoIcon);
 
     return 0;
 }
@@ -139,26 +149,34 @@ int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID sr
         return ignored;
     }
 
+    QSystemTrayIcon* ico = UIHelper::getTrayIcon();
+    QString          str = UIHelper::removeBBCode(msg);
+
+    if(!ico || !ico->isVisible())
+    {
+        return ignored;
+    }
+
     if(self.getID() && from.getID() != self.getID() && !ignored)
     {
-        if(mode == TextMessageTarget_CLIENT || QString(msg).contains(self.getName()))
+        if(mode == TextMessageTarget_CLIENT || str.contains(self.getName()))
         {
             switch(mode)
             {
             case TextMessageTarget_SERVER:
-                UIHelper::getTrayIcon()->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1:\n%2").arg(from.getName(), msg), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1:\n%2").arg(from.getName(), str), QSystemTrayIcon::NoIcon);
                 break;
 
             case TextMessageTarget_CHANNEL:
-                UIHelper::getTrayIcon()->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1 in %2:\n%3").arg(from.getName(), server.getChannelByID().getName(), msg), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1 in %2:\n%3").arg(from.getName(), server.getChannelByID().getName(), str), QSystemTrayIcon::NoIcon);
                 break;
 
             case TextMessageTarget_CLIENT:
-                UIHelper::getTrayIcon()->showMessage(from.getName(), msg, QSystemTrayIcon::NoIcon);
+                ico->showMessage(from.getName(), str, QSystemTrayIcon::NoIcon);
                 break;
 
             default:
-                UIHelper::getTrayIcon()->showMessage(QString("%1 (%2)").arg(srcName, srcUID), msg, QSystemTrayIcon::NoIcon);
+                ico->showMessage(QString("%1 (%2)").arg(srcName, srcUID), str, QSystemTrayIcon::NoIcon);
             }
         }
     }

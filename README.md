@@ -8,6 +8,12 @@ you're receiving private messages.
 **Note**: Notifications are sent using the tray icon so make sure you have it enabled in the TeamSpeak 
 3 Client settings.
 
+## Testing Functionality
+
+To make sure the plugin is running and operational, simply enter the following command in your TeamSpeak 3 Client chat area:
+
+`/notify Hello World!`
+
 ## Requirements
 
 - [TeamSpeak 3 Client Plugin SDK](https://github.com/svenpaulsen/ts3client-pluginsdk)
