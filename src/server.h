@@ -21,6 +21,9 @@ public:
     Client  getClientById(anyID clientID = 0);
     Channel getChannelByID(uint64 channelID = 0);
 
+    uint64       getID();
+    uint64       getSchID();
+    QString      getName();
     unsigned int requestVars();
     int          getVarAsInt(size_t flag, int fallback = 0);
     uint64       getVarAsU64(size_t flag, uint64 fallback = 0);

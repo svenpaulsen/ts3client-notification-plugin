@@ -25,6 +25,30 @@ Channel Server::getChannelByID(uint64 channelID)
 }
 
 /**
+ * Returns the underlying server connection handler ID.
+ */
+uint64 Server::getSchID()
+{
+    return m_schID;
+}
+
+/**
+ * Alias for getSchID().
+ */
+uint64 Server::getID()
+{
+    return getSchID();
+}
+
+/**
+ * Returns the name of the underlying server.
+ */
+QString Server::getName()
+{
+    return getVarAsStr(VIRTUALSERVER_NAME);
+}
+
+/**
  * Requests updated variables from the server.
  */
 unsigned int Server::requestVars()

@@ -23,7 +23,7 @@ const char* ts3plugin_name()
  */
 const char* ts3plugin_version()
 {
-    return "1.0.1";
+    return "1.0.2";
 }
 
 /**
@@ -164,11 +164,11 @@ int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID sr
             switch(mode)
             {
             case TextMessageTarget_SERVER:
-                ico->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1:\n%2").arg(from.getName(), str), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getName(), QString("%1:\n%2").arg(from.getName(), str), QSystemTrayIcon::NoIcon);
                 break;
 
             case TextMessageTarget_CHANNEL:
-                ico->showMessage(server.getVarAsStr(VIRTUALSERVER_NAME), QString("%1 in %2:\n%3").arg(from.getName(), server.getChannelByID().getName(), str), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getName(), QString("%1 in %2:\n%3").arg(from.getName(), server.getChannelByID().getName(), str), QSystemTrayIcon::NoIcon);
                 break;
 
             case TextMessageTarget_CLIENT:
