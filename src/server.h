@@ -7,8 +7,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "client.h"
-#include "channel.h"
 #include "shared.h"
 
 class Server
@@ -18,8 +16,8 @@ class Server
 public:
     Server(uint64 schID);
 
-    Client  getClientById(anyID clientID = 0);
-    Channel getChannelByID(uint64 channelID = 0);
+    Client       getClientById(anyID clientID = 0);
+    Channel      getChannelByID(uint64 channelID = 0);
 
     uint64       getID();
     uint64       getSchID();

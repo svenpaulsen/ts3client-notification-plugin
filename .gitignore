@@ -1,4 +1,5 @@
 /build
-.DS_Store
-/plugin.pro.user
 /tools
+plugin.pro.user
+.DS_Store
+.qmake.stash

@@ -14,6 +14,8 @@ class UIHelper
 public:
     static QMainWindow*     getMainWindow();
     static QSystemTrayIcon* getTrayIcon();
+    static QString          getAppPath();
+    static QString          getConfigPath();
     static QString          removeBBCode(QString str);
 };
 

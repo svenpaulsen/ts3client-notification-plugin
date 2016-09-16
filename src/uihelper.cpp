@@ -44,6 +44,30 @@ QSystemTrayIcon* UIHelper::getTrayIcon()
 }
 
 /**
+ * Returns the full path of the TeamSpeak 3 Client application directory.
+ */
+QString UIHelper::getAppPath()
+{
+    char path[BUFFSIZE_S];
+
+    pluginSDK.getAppPath(path, BUFFSIZE_S);
+
+    return QString(path);
+}
+
+/**
+ * Returns the full path of the TeamSpeak 3 Client settings directory.
+ */
+QString UIHelper::getConfigPath()
+{
+    char path[BUFFSIZE_S];
+
+    pluginSDK.getConfigPath(path, BUFFSIZE_S);
+
+    return QString(path);
+}
+
+/**
  * Quick-and-dirty function to remove BBCode tags from a specified string.
  */
 QString UIHelper::removeBBCode(QString str)

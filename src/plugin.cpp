@@ -5,9 +5,11 @@
  */
 
 #include "plugin.h"
-#include "server.h"
+
 #include "client.h"
 #include "channel.h"
+#include "server.h"
+#include "database.h"
 #include "uihelper.h"
 
 /**
@@ -23,7 +25,7 @@ const char* ts3plugin_name()
  */
 const char* ts3plugin_version()
 {
-    return "1.0.2";
+    return PLUGIN_VER;
 }
 
 /**
@@ -31,7 +33,7 @@ const char* ts3plugin_version()
  */
 const char* ts3plugin_author()
 {
-    return "Sven Paulsen";
+    return "Sven 'ScP' Paulsen";
 }
 
 /**
@@ -39,7 +41,7 @@ const char* ts3plugin_author()
  */
 const char* ts3plugin_description()
 {
-    return "Plugin to send simple desktop notifications when being mentioned or receiving private messages";
+    return "Plugin to send simple desktop notifications when being mentioned or receiving private messages.";
 }
 
 /**
@@ -57,12 +59,19 @@ int ts3plugin_init()
 {
     if(!UIHelper::getMainWindow())
     {
-        pluginSDK.logMessage(QString("Failed to initialize plugin; no QMainWindow available").toUtf8().data(), LogLevel_ERROR, ts3plugin_name(), 0);
+        pluginSDK.logMessage("Failed to initialize plugin; no QMainWindow available", LogLevel_ERROR, ts3plugin_name(), 0);
 
         return 1;
     }
 
-    pluginSDK.logMessage(QString("Plugin initialized; version %1 built on %2 %3").arg(ts3plugin_version(), __DATE__, __TIME__).toUtf8().data(), LogLevel_INFO, ts3plugin_name(), 0);
+    if(!Database::instance()->isValid())
+    {
+        pluginSDK.logMessage("Failed to initialize plugin; no QSqlDriver available", LogLevel_ERROR, ts3plugin_name(), 0);
+
+        return 1;
+    }
+
+    pluginSDK.logMessage(QString("Plugin initialized; version %1 (API %2) built on %3 %4").arg(ts3plugin_version(), QString::number(ts3plugin_apiVersion()), __DATE__, __TIME__).toUtf8().data(), LogLevel_INFO, ts3plugin_name(), 0);
 
     return 0;
 }
@@ -117,7 +126,7 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
 
     if(!ico || !ico->isVisible())
     {
-        pluginSDK.logMessage(QString("Failed to send notification; no QSystemTrayIcon available").toUtf8().data(), LogLevel_WARNING, ts3plugin_name(), schID);
+        pluginSDK.logMessage("Failed to send notification; no QSystemTrayIcon available", LogLevel_WARNING, ts3plugin_name(), schID);
 
         return 1;
     }
@@ -129,8 +138,6 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
 
 /**
  * Sends a notification on incoming text messages when the main window is not the active window.
- *
- * @todo cleanup code
  */
 int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored)
 {
@@ -182,4 +189,81 @@ int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID sr
     }
 
     return ignored;
+}
+
+/**
+ * Sends a notification when a friend connects, disconnects or joins/leaves your current channel.
+ */
+void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, uint64 toChanID, int visibility, const char* msg)
+{
+    if(UIHelper::getMainWindow()->isActiveWindow())
+    {
+        return;
+    }
+
+    Server server(schID);
+
+    Client  self = server.getClientById();
+    Channel chan = server.getChannelByID();
+
+    if(self.getName().isNull())
+    {
+        return;
+    }
+
+    QSystemTrayIcon* ico = UIHelper::getTrayIcon();
+
+    if(!ico || !ico->isVisible() || clientID == self.getID())
+    {
+        return;
+    }
+
+    Client  client = server.getClientById(clientID);
+    Channel frChan = server.getChannelByID(frChanID);
+    Channel toChan = server.getChannelByID(toChanID);
+
+    if(!client.isFriend())
+    {
+        return;
+    }
+
+    switch(visibility)
+    {
+    case ENTER_VISIBILITY:
+        if(!frChanID)
+        {
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 connected to channel %2").arg(client.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+        }
+        else
+        {
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 appears, coming from channel %2").arg(client.getName(), frChan.getName()), QSystemTrayIcon::NoIcon);
+        }
+        break;
+
+    case LEAVE_VISIBILITY:
+        if(!toChanID)
+        {
+            QString message(msg);
+
+            if(message.isEmpty())
+            {
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected %2").arg(client.getName(), "(" + message + ")"), QSystemTrayIcon::NoIcon);
+            }
+            else
+            {
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected").arg(client.getName()), QSystemTrayIcon::NoIcon);
+            }
+        }
+        else
+        {
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 left heading to channel %2").arg(client.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+        }
+        break;
+
+    default:
+        if(toChanID == chan.getID() || frChanID == chan.getID())
+        {
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 switched from channel %2 to %3").arg(client.getName(), frChan.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+        }
+    }
 }

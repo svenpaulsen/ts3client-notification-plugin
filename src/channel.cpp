@@ -4,6 +4,7 @@
  * Copyright (c) Sven Paulsen. All rights reserved.
  */
 
+#include "client.h"
 #include "channel.h"
 
 /**

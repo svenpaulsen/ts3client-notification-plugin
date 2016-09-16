@@ -5,6 +5,7 @@
  */
 
 #include "client.h"
+#include "database.h"
 
 /**
  * The Client object constructor.
@@ -115,4 +116,19 @@ QString Client::getVarAsStr(size_t flag, QString fallback)
     pluginSDK.freeMemory(var);
 
     return ret;
+}
+
+/**
+ * Returns TRUE if the client is on the local friend list.
+ */
+bool Client::isFriend()
+{
+    QString uid = getVarAsStr(CLIENT_UNIQUE_IDENTIFIER);
+
+    if(uid.isEmpty())
+    {
+        return false;
+    }
+
+    return Database::instance()->hasContact(uid) == 0;
 }

@@ -7,9 +7,12 @@
 #ifndef SHARED_H
 #define SHARED_H
 
-#include <QtCore>
 #include <QApplication>
 #include <QMainWindow>
+#include <QMutex>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 #include <QSystemTrayIcon>
 
 #include "teamspeak/public_rare_definitions.h"

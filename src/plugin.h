@@ -27,6 +27,7 @@ Q_DECL_EXPORT void        ts3plugin_setFunctionPointers(const struct TS3Function
 Q_DECL_EXPORT const char* ts3plugin_commandKeyword();
 Q_DECL_EXPORT int         ts3plugin_processCommand(uint64 schID, const char* cmd);
 Q_DECL_EXPORT int         ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored);
+Q_DECL_EXPORT void        ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, uint64 toChanID, int visibility, const char* msg);
 Q_DECL_EXPORT void        ts3plugin_registerPluginID(const char* id);
 
 #ifdef __cplusplus

@@ -7,7 +7,6 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
-#include "client.h"
 #include "shared.h"
 
 class Channel
