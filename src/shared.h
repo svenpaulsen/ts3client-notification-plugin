@@ -18,7 +18,7 @@
 #include "teamspeak/public_rare_definitions.h"
 #include "ts3_functions.h"
 
-#define PLUGIN_API 21
+#define PLUGIN_API 22
 #define BUFFSIZE_L 512
 #define BUFFSIZE_M 256
 #define BUFFSIZE_D 128

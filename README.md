@@ -2,15 +2,16 @@
 
 [![Build Status](https://travis-ci.org/svenpaulsen/ts3client-notification-plugin.svg?branch=master)](https://travis-ci.org/svenpaulsen/ts3client-notification-plugin)
 
-This simple plugin sends desktop notifications when your nickname is mentioned in the chat or when
-you're receiving private messages.
+This simple plugin sends desktop notifications when friends appear/disappear, when your nickname is mentioned 
+in the chat and when you're receiving private messages.
 
 **Note**: Notifications are sent using the tray icon so make sure you have it enabled in the TeamSpeak 
 3 Client settings.
 
 ## Testing Functionality
 
-To make sure the plugin is running and operational, simply enter the following command in your TeamSpeak 3 Client chat area:
+To make sure the plugin is running and operational, simply enter the following command in your TeamSpeak 3 
+Client chat area:
 
 `/notify Hello World!`
 
