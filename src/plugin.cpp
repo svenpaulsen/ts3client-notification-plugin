@@ -141,7 +141,7 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
  */
 int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored)
 {
-    if(UIHelper::getMainWindow()->isActiveWindow())
+    if(UIHelper::getMainWindow()->isActiveWindow() && pluginSDK.getCurrentServerConnectionHandlerID() == schID)
     {
         return ignored;
     }
@@ -196,7 +196,7 @@ int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID sr
  */
 void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, uint64 toChanID, int visibility, const char* msg)
 {
-    if(UIHelper::getMainWindow()->isActiveWindow())
+    if(UIHelper::getMainWindow()->isActiveWindow() && pluginSDK.getCurrentServerConnectionHandlerID() == schID)
     {
         return;
     }
