@@ -7,7 +7,7 @@
 QT     += sql widgets
 CONFIG += c++11
 
-VERSION  = 1.0.3
+VERSION  = _VERSION_
 TARGET   = notification_plugin
 TEMPLATE = lib
 
