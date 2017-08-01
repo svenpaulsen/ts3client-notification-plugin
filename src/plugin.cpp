@@ -241,20 +241,7 @@ void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, 
         break;
 
     case LEAVE_VISIBILITY:
-        if(!toChanID)
-        {
-            QString message(msg);
-
-            if(message.isEmpty())
-            {
-                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected %2").arg(client.getName(), "(" + message + ")"), QSystemTrayIcon::NoIcon);
-            }
-            else
-            {
-                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected").arg(client.getName()), QSystemTrayIcon::NoIcon);
-            }
-        }
-        else
+        if(toChanID)
         {
             ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 left heading to channel %2").arg(client.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
         }
