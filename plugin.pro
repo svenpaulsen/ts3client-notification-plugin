@@ -23,7 +23,8 @@ SOURCES += src/plugin.cpp \
     src/shared.cpp \
     src/client.cpp \
     src/channel.cpp \
-    src/database.cpp
+    src/database.cpp \
+    src/cache.cpp
 HEADERS += src/plugin.h \
     src/uihelper.h \
     src/server.h \
@@ -31,4 +32,5 @@ HEADERS += src/plugin.h \
     src/client.h \
     src/channel.h \
     src/database.h \
-    src/singleton.h
+    src/singleton.h \
+    src/cache.h

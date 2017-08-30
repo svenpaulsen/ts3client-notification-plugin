@@ -6,6 +6,7 @@
 
 #include "plugin.h"
 
+#include "cache.h"
 #include "client.h"
 #include "channel.h"
 #include "server.h"
@@ -17,7 +18,7 @@
  */
 const char* ts3plugin_name()
 {
-    return "Notifications";
+    return PLUGIN_NAME;
 }
 
 /**
@@ -59,19 +60,19 @@ int ts3plugin_init()
 {
     if(!UIHelper::getMainWindow())
     {
-        pluginSDK.logMessage("Failed to initialize plugin; no QMainWindow available", LogLevel_ERROR, ts3plugin_name(), 0);
+        pluginSDK.logMessage("Failed to initialize plugin; no QMainWindow available", LogLevel_ERROR, PLUGIN_NAME, 0);
 
         return 1;
     }
 
     if(!Database::instance()->isValid())
     {
-        pluginSDK.logMessage("Failed to initialize plugin; no QSqlDriver available", LogLevel_ERROR, ts3plugin_name(), 0);
+        pluginSDK.logMessage("Failed to initialize plugin; no QSqlDriver available", LogLevel_ERROR, PLUGIN_NAME, 0);
 
         return 1;
     }
 
-    pluginSDK.logMessage(QString("Plugin initialized; version %1 (API %2) built on %3 %4").arg(ts3plugin_version(), QString::number(ts3plugin_apiVersion()), __DATE__, __TIME__).toUtf8().data(), LogLevel_INFO, ts3plugin_name(), 0);
+    pluginSDK.logMessage(QString("Plugin initialized; version %1 (API %2) built on %3 %4").arg(ts3plugin_version(), QString::number(ts3plugin_apiVersion()), __DATE__, __TIME__).toUtf8().data(), LogLevel_INFO, PLUGIN_NAME, 0);
 
     return 0;
 }
@@ -122,11 +123,11 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
     QSystemTrayIcon* ico = UIHelper::getTrayIcon();
     QString          str = UIHelper::removeBBCode(cmd);
 
-    pluginSDK.logMessage(QString("%1(): %2").arg(__FUNCTION__, str).toUtf8().data(), LogLevel_DEBUG, ts3plugin_name(), schID);
+    pluginSDK.logMessage(QString("%1(): %2").arg(__FUNCTION__, str).toUtf8().data(), LogLevel_DEBUG, PLUGIN_NAME, schID);
 
     if(!ico || !ico->isVisible())
     {
-        pluginSDK.logMessage("Failed to send notification; no QSystemTrayIcon available", LogLevel_WARNING, ts3plugin_name(), schID);
+        pluginSDK.logMessage("Failed to send notification; no QSystemTrayIcon available", LogLevel_WARNING, PLUGIN_NAME, schID);
 
         return 1;
     }
@@ -218,11 +219,17 @@ void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, 
         return;
     }
 
-    Client  client = server.getClientById(clientID);
-    Channel frChan = server.getChannelByID(frChanID);
-    Channel toChan = server.getChannelByID(toChanID);
+    if(visibility == ENTER_VISIBILITY)
+    {
+        Cache::instance()->addClient(schID, clientID);
+    }
 
-    if(!client.isFriend())
+    QString nickname = Cache::instance()->getClient(schID, clientID).first;
+    QString uniqueID = Cache::instance()->getClient(schID, clientID).second;
+    Channel frChan   = server.getChannelByID(frChanID);
+    Channel toChan   = server.getChannelByID(toChanID);
+
+    if(uniqueID.isEmpty() || Database::instance()->hasContact(uniqueID) != 0)
     {
         return;
     }
@@ -232,25 +239,57 @@ void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, 
     case ENTER_VISIBILITY:
         if(!frChanID)
         {
-            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 connected to channel %2").arg(client.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 connected to channel %2").arg(nickname, toChan.getName()), QSystemTrayIcon::NoIcon);
         }
         else
         {
-            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 appears, coming from channel %2").arg(client.getName(), frChan.getName()), QSystemTrayIcon::NoIcon);
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 appears, coming from channel %2").arg(nickname, frChan.getName()), QSystemTrayIcon::NoIcon);
         }
         break;
 
     case LEAVE_VISIBILITY:
-        if(toChanID)
+        if(!toChanID)
         {
-            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 left heading to channel %2").arg(client.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+            QString message(msg);
+
+            if(message.isEmpty())
+            {
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected %2").arg(nickname, "(" + message + ")"), QSystemTrayIcon::NoIcon);
+            }
+            else
+            {
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected").arg(nickname), QSystemTrayIcon::NoIcon);
+            }
+        }
+        else
+        {
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 left heading to channel %2").arg(nickname, toChan.getName()), QSystemTrayIcon::NoIcon);
         }
         break;
 
     default:
         if(toChanID == chan.getID() || frChanID == chan.getID())
         {
-            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 switched from channel %2 to %3").arg(client.getName(), frChan.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
+            ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 switched from channel %2 to %3").arg(nickname, frChan.getName(), toChan.getName()), QSystemTrayIcon::NoIcon);
         }
     }
+
+    if(visibility == LEAVE_VISIBILITY)
+    {
+        Cache::instance()->remClient(schID, clientID);
+    }
+}
+
+/**
+ * Maintains an internal list of clients in your view.
+ */
+void ts3plugin_onClientMoveSubscriptionEvent(uint64 schID, anyID clientID, uint64 frChanID, uint64 toChanID, int visibility)
+{
+    if(!visibility)
+    {
+        Cache::instance()->addClient(schID, clientID);
+    }
+
+    Q_UNUSED(frChanID)
+    Q_UNUSED(toChanID)
 }
