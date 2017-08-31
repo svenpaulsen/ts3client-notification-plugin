@@ -23,6 +23,7 @@ public:
     QPair<QString, QString> getClient(uint64 schID, anyID clientID);
     void                 addClient(uint64 schID, anyID clientID);
     void                 remClient(uint64 schID, anyID clientID);
+    void                 clear(uint64 schID = 0);
 };
 
 #endif // CACHE_H

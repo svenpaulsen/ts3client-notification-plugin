@@ -21,11 +21,17 @@ Cache::Cache() : Singleton<Cache>()
 Cache::~Cache()
 {}
 
+/**
+ * Returns a pair of client nickname and unique identifier from the cache.
+ */
 QPair<QString, QString> Cache::getClient(uint64 schID, anyID clientID)
 {
     return m_cache[schID][clientID];
 }
 
+/**
+ * Adds or updates a client entry in the cache.
+ */
 void Cache::addClient(uint64 schID, anyID clientID)
 {
     Server server(schID);
@@ -42,11 +48,29 @@ void Cache::addClient(uint64 schID, anyID clientID)
     }
 }
 
+/**
+ * Removes a client entry from the cache.
+ */
 void Cache::remClient(uint64 schID, anyID clientID)
 {
     m_cache[schID].remove(clientID);
 
     if(!m_cache[schID].count())
+    {
+        m_cache.remove(schID);
+    }
+}
+
+/**
+ * Wipes the cache.
+ */
+void Cache::clear(uint64 schID)
+{
+    if(!schID)
+    {
+        m_cache.clear();
+    }
+    else
     {
         m_cache.remove(schID);
     }

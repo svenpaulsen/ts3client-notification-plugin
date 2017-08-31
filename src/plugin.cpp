@@ -138,6 +138,19 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
 }
 
 /**
+ * Clears the cache for the specified server connection handler when disconnecting.
+ */
+void onConnectStatusChangeEvent(uint64 schID, int status, unsigned int error)
+{
+    if(status == STATUS_DISCONNECTED)
+    {
+        Cache::instance()->clear(schID);
+    }
+
+    Q_UNUSED(error)
+}
+
+/**
  * Sends a notification on incoming text messages when the main window is not the active window.
  */
 int ts3plugin_onTextMessageEvent(uint64 schID, anyID mode, anyID rcvID, anyID srcID, const char* srcName, const char* srcUID, const char* msg, int ignored)
