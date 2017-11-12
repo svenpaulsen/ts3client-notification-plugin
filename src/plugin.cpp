@@ -267,11 +267,11 @@ void ts3plugin_onClientMoveEvent(uint64 schID, anyID clientID, uint64 frChanID, 
 
             if(message.isEmpty())
             {
-                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected %2").arg(nickname, "(" + message + ")"), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected").arg(nickname), QSystemTrayIcon::NoIcon);
             }
             else
             {
-                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected").arg(nickname), QSystemTrayIcon::NoIcon);
+                ico->showMessage(server.getName(), qApp->translate("ServerView", "%1 disconnected %2").arg(nickname, "(" + message + ")"), QSystemTrayIcon::NoIcon);
             }
         }
         else
