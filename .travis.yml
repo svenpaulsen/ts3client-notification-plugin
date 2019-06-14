@@ -1,5 +1,5 @@
 language: C++
-dist: trusty
+dist: xenial
 sudo: required
 before_install:
   - sudo add-apt-repository --yes ppa:canonical-qt5-edgers/qt5-proper
