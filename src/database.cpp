@@ -12,13 +12,7 @@
  */
 Database::Database() : Singleton<Database>()
 {
-    m_db = QSqlDatabase::addDatabase("QSQLITE", "settings_database");
-
-    if(m_db.databaseName().isEmpty())
-    {
-        m_db.setDatabaseName(UIHelper::getConfigPath() + "settings.db");
-        m_db.setUserName("TeamSpeak");
-    }
+    m_db = QSqlDatabase::database("settings_database");
 }
 
 /**
