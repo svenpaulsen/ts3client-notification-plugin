@@ -13,6 +13,8 @@
 Database::Database() : Singleton<Database>()
 {
     m_db = QSqlDatabase::addDatabase("QSQLITE", "settings_database");
+
+    m_db.setDatabaseName(UIHelper::getConfigPath() + "settings.db");
 }
 
 /**
