@@ -17,7 +17,6 @@ class Database : public Singleton<Database>
     QSqlDatabase m_db;
 
     Database();
-    ~Database();
 
 public:
     bool      isValid();

@@ -12,22 +12,7 @@
  */
 Database::Database() : Singleton<Database>()
 {
-    m_db = QSqlDatabase::addDatabase("QSQLITE", QString(pluginID));
-
-    m_db.setDatabaseName(UIHelper::getConfigPath() + "settings.db");
-}
-
-/**
- * The Database object destructor.
- */
-Database::~Database()
-{
-    if(isOpen())
-    {
-        close();
-    }
-
-    QSqlDatabase::removeDatabase(QString(pluginID));
+    m_db = QSqlDatabase::addDatabase("QSQLITE", "settings_database");
 }
 
 /**
