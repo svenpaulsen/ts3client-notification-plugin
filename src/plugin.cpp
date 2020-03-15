@@ -140,7 +140,7 @@ int ts3plugin_processCommand(uint64 schID, const char* cmd)
 /**
  * Clears the cache for the specified server connection handler when disconnecting.
  */
-void onConnectStatusChangeEvent(uint64 schID, int status, unsigned int error)
+void ts3plugin_onConnectStatusChangeEvent(uint64 schID, int status, unsigned int error)
 {
     if(status == STATUS_DISCONNECTED)
     {
