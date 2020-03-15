@@ -42,9 +42,9 @@ uint64 Client::getSchID()
  */
 QString Client::getName()
 {
-    char name[TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK];
+    char name[BUFFSIZE_S];
 
-    if(pluginSDK.getClientDisplayName(m_schID, m_clientID, name, TS3_MAX_SIZE_CLIENT_NICKNAME_NONSDK))
+    if(pluginSDK.getClientDisplayName(m_schID, m_clientID, name, BUFFSIZE_S))
     {
         return getVarAsStr(CLIENT_NICKNAME);
     }
